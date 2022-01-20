@@ -40,7 +40,6 @@ const useData = url => {
 					setData(json);
 				})
 				.catch(error_ => {
-					console.log(error_);
 					setError(error_);
 				})
 				.finally(() => {
@@ -55,29 +54,65 @@ const useData = url => {
 	};
 };
 
+const useMousePosition = () => {
+	const [position, setPosition] = useState({ x: 0, y: 0 });
+
+	useEffect(() => {
+		const handleMouseMove = event_ => {
+			const { pageX, pageY } = event_;
+			setPosition({ x: pageX, y: pageY });
+			//console.log(event_.pageX, event_.pageY);
+		};
+
+		window.addEventListener("mousemove", handleMouseMove, { passive: true });
+
+		return () => {
+			window.removeEventListener("mousemove", handleMouseMove);
+		};
+	}, []);
+
+	return position;
+};
+
+const useWindowSize = () => {
+	const [size, setSize] = useState({ width: 0, height: 0 });
+	useEffect(() => {
+		const handleResize = event_ => {
+			const { innerWidth, innerHeight } = window;
+			setSize({ width: innerWidth, height: innerHeight });
+			//console.log(event_.pageX, event_.pageY);
+		};
+		handleResize();
+		window.addEventListener("resize", handleResize), { passive: true };
+
+		return () => {
+			window.removeEventListener("resize", handleResize);
+		};
+	}, []);
+	return size;
+};
+
 const App = () => {
-	const [url, setUrl] = useState("/api/animal.json");
-	const { data, loading, error } = useData(url);
+	//const [url, setUrl] = useState("/api/animal.json");
+	//const { data, loading, error } = useData(url);
+	const position = useMousePosition();
+	const size = useWindowSize();
 	return (
 		<div>
-			<Code code={data} />
-			<h1>{loading ? "Loading..." : "There you go!"}</h1>
-			<h2>{error ? "Opps" : "No Error"}</h2>
-
-			<button
-				onClick={() => {
-					setUrl("/api/animal.json");
+			<Code code={position} />
+			<Code code={size} />
+			<div
+				style={{
+					background: "blue",
+					color: "white",
+					position: "absolute",
+					border: "1px solid white",
+					top: position.y,
+					left: position.x,
 				}}
 			>
-				Get Animal
-			</button>
-			<button
-				onClick={() => {
-					setUrl("/api/person.json");
-				}}
-			>
-				Get Person
-			</button>
+				Hahahahahaha
+			</div>
 		</div>
 	);
 };
